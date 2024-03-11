@@ -3,6 +3,8 @@
 ## Introduction
 - This set of SQL queries is designed to clean and standardize data in the NashvilleHousing dataset.
 
+- Skills used: Data type conversions, updates, string manipulation, handling null values, removing duplicates, and dropping columns
+
 ## Table of Contents
 - [Standardize Date Format](#standardize-date-format)
 - [Populate Property Address Data](#populate-property-address-data)
@@ -14,6 +16,8 @@
 
 ## Standardize Date Format
 - This section standardizes the SaleDate column to the Date format.
+```sql
+        -- Update SaleDate to Date format
 
         Select SaleDateConverted, CONVERT(Date,SaleDate)
         From PortfolioProject.dbo.NashvilleHousing
@@ -31,12 +35,13 @@
         
         Update NashvilleHousing
         SET SaleDateConverted = CONVERT(Date,SaleDate)
-
+```
 
 ## Populate Property Address Data
 - This section populates missing PropertyAddress values based on non-null values from other records with the same ParcelID.
-
+```sql
         -- Populate Property Address data
+
         Select *
         From PortfolioProject.dbo.NashvilleHousing
         --Where PropertyAddress is null
@@ -44,6 +49,7 @@
         
         
         -- Update PropertyAddress with non-null values
+
         Select a.ParcelID, a.PropertyAddress, b.ParcelID, b.PropertyAddress, ISNULL(a.PropertyAddress,b.PropertyAddress)
         From PortfolioProject.dbo.NashvilleHousing a
         JOIN PortfolioProject.dbo.NashvilleHousing b
@@ -59,11 +65,12 @@
         	on a.ParcelID = b.ParcelID
         	AND a.[UniqueID ] <> b.[UniqueID ]
         Where a.PropertyAddress is null
-
+```
 ## Breaking out Address into Individual Columns
 - This section breaks the PropertyAddress column into individual Address and City columns.
-
+```sql
         -- Breaking out Owner Address into Individual Columns
+
         Select PropertyAddress
         From PortfolioProject.dbo.NashvilleHousing
         --Where PropertyAddress is null
@@ -88,17 +95,18 @@
         
         Update NashvilleHousing
         SET PropertySplitCity = SUBSTRING(PropertyAddress, CHARINDEX(',', PropertyAddress) + 1 , LEN(PropertyAddress))
-        
-        
-        
-        
+              
         Select *
         From PortfolioProject.dbo.NashvilleHousing
-        
-        
-        
-        
-        
+
+
+```       
+## Breaking out Owner Address into Individual Columns
+- This section breaks the OwnerAddress column into individual Address, City, and State columns.
+```sql          
+
+        -- Breaking out Owner Address into Individual Columns
+
         Select OwnerAddress
         From PortfolioProject.dbo.NashvilleHousing
         
@@ -136,11 +144,12 @@
         
         Select *
         From PortfolioProject.dbo.NashvilleHousing
-
+```
 ## Change Y and N to Yes and No
 - This section updates the "Sold as Vacant" field to use "Yes" and "No" instead of "Y" and "N".
-
+```sql
         -- Change Y and N to Yes and No in "Sold as Vacant" field
+
         Select Distinct(SoldAsVacant), Count(SoldAsVacant)
         From PortfolioProject.dbo.NashvilleHousing
         Group by SoldAsVacant
@@ -157,11 +166,12 @@
         	When SoldAsVacant = 'N' Then 'No'
         	Else SoldAsVacant
         	END
-
+```
 ## Remove Duplicates
 - This section removes duplicate records based on specific columns.
-
+```sql
         -- Remove Duplicates
+
         WITH RowNumCTE as(
         Select *,
         	ROW_NUMBER() OVER (
@@ -180,11 +190,12 @@
         From RowNumCTE
         Where row_num > 1
         --Order by PropertyAddress
-
+```
 ## Delete Unused Columns
 - This section removes unused columns from the dataset.
-
+```sql
         -- Delete Unused Columns
+
         Select *
         From PortfolioProject..NashvilleHousing
         
@@ -194,3 +205,4 @@
         
         ALTER TABLE PortfolioProject..NashvilleHousing
         DROP COLUMN Saledate
+```
